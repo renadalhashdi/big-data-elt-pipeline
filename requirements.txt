@@ -2,3 +2,6 @@ pymongo==4.17.0
 pyspark==4.2.0
 py4j==0.10.9.9
 pytest==9.1.1
+fastapi
+uvicorn
+schedule

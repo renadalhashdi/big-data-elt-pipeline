@@ -1,0 +1,17 @@
+{
+    "query_city": {
+        "executionTimeMillis": 113,
+        "totalDocsExamined": 98595,
+        "documentsReturned": 98595
+    },
+    "query_product": {
+        "executionTimeMillis": 469,
+        "totalDocsExamined": 163787,
+        "documentsReturned": 163787
+    },
+    "query_compound": {
+        "executionTimeMillis": 21,
+        "totalDocsExamined": 16142,
+        "documentsReturned": 16142
+    }
+}
