@@ -39,7 +39,16 @@ app = FastAPI(
     title="Big Data ELT Pipeline API",
     version="2.0"
 )
+@app.post("/ingest")
+def ingest():
 
+    from main import main
+
+    main()
+
+    return {
+        "message": "Ingestion completed"
+    }
 
 @app.get("/health")
 def health():
