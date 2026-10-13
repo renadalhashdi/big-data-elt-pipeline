@@ -45,7 +45,9 @@ def ingest():
 
     from main import main
 
-    main()
+    file_path = "data/orders_clean.csv"
+
+    main(file_path)
 
     return {
         "message": "Ingestion completed"
