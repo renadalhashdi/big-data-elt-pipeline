@@ -43,8 +43,7 @@ app = FastAPI(
 @app.post("/ingest")
 def ingest():
 
-    from main import main
-
+   from src.main import main
     file_path = "data/orders_clean.csv"
 
     main(file_path)
