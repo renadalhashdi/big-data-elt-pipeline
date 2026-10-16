@@ -29,43 +29,71 @@ def upsert_records(collection, records):
 
     if not records:
         return 0, 0, 0
+    existing_indexes = collection.index_information()
 
+    if "id_order_1" in existing_indexes:
+        old_index = existing_indexes["id_order_1"]
+
+        if not old_index.get("sparse", False):
+            collection.drop_index("id_order_1")
 
     collection.create_index(
         "id_order",
-        unique=True
+        unique=True,
+        sparse=True
     )
-
+ 
 
     operations = []
-
+    records_without_id = []
 
     for record in records:
 
-        operations.append(
-            UpdateOne(
-                {
-                    "id_order": record["id_order"]
-                },
-                {
-                    "$set": record
-                },
-                upsert=True
+        id_order = record.get("id_order")
+
+        if id_order:
+            operations.append(
+                UpdateOne(
+                    {
+                        "id_order": id_order
+                    },
+                    {
+                        "$set": record
+                    },
+                    upsert=True
+                )
             )
+        else:
+            record_without_id = record.copy()
+            record_without_id.pop("id_order", None)
+            records_without_id.append(record_without_id)
+
+
+        matched_count = 0
+        modified_count = 0
+        inserted_count = 0
+
+    if operations:
+        result = collection.bulk_write(
+            operations
         )
 
+        matched_count = result.matched_count
+        modified_count = result.modified_count
+        inserted_count = len(result.upserted_ids)
 
-    result = collection.bulk_write(
-        operations
-    )
+    if records_without_id:
+        result = collection.insert_many(
+            records_without_id
+        )
 
+        inserted_count += len(result.inserted_ids)
 
     return (
-        result.matched_count,
-        result.modified_count,
-        len(result.upserted_ids)
+        matched_count,
+        modified_count,
+        inserted_count
     )
-
 
 
 def run_pipeline():
@@ -110,9 +138,15 @@ def run_pipeline():
         )
 
 
+        print("Cleaning record:", total_records)
+
+
         cleaned_record, errors, corrections = clean_record(
             record
         )
+
+
+        print("Record cleaned")
 
 
         if corrections:
@@ -161,6 +195,7 @@ def run_pipeline():
         quarantine,
         quarantine_records
     )
+
 
 
     execution_time = time.time() - start_time

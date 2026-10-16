@@ -137,13 +137,3 @@ def load_with_spark(file_path):
 
     print("Spark Write Raw: SUCCESS")
 
-
-    spark.stop()
-
-
-
-if __name__ == "__main__":
-
-    load_with_spark(
-        "data/orders_clean.csv"
-    )

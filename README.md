@@ -49,9 +49,7 @@ Validated Data + Quarantine
 
 Total Records: 1,048,575
 
-Validated Records: 1,000,299
-
-Corrected Records: 23,393
+Validated Records: 985,991
 
 Quarantine Records: 48,276
 
