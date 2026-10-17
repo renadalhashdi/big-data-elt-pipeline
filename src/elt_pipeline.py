@@ -11,7 +11,6 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
 
-
 from config.settings import (
     MONGO_URI,
     DATABASE_NAME,
@@ -20,8 +19,8 @@ from config.settings import (
     QUARANTINE_COLLECTION
 )
 
-from quality_rules import clean_record
-from metrics import save_metrics
+from src.quality_rules import clean_record
+from src.metrics import save_metrics
 
 
 

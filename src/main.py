@@ -1,10 +1,6 @@
 import sys
 import os
 
-from src.elt_pipeline import run_pipeline
-from file_router import route_file
-from spark_loader import load_with_spark
-
 sys.path.append(
     os.path.dirname(
         os.path.dirname(
@@ -13,10 +9,16 @@ sys.path.append(
     )
 )
 
+from src.elt_pipeline import run_pipeline
+from src.file_router import route_file
+from src.batch_loader import load_to_mongodb
+from src.spark_loader import load_with_spark
+
+
 from fastapi import FastAPI
 
-from queries.create_indexes import create_indexes
-from queries.queries import (
+from src.queries.create_indexes import create_indexes
+from src.queries.queries import (
     query_1_by_city,
     query_2_by_customer,
     query_3_by_product,
@@ -24,16 +26,16 @@ from queries.queries import (
     query_5_city_and_status
 )
 
-from aggregations.sales_by_city import sales_by_city
-from aggregations.top_products import top_products
-from aggregations.top_customers import top_customers
-from aggregations.sales_by_status import sales_by_status
-from aggregations.sales_by_payment import sales_by_payment
+from src.aggregations.sales_by_city import sales_by_city
+from src.aggregations.top_products import top_products
+from src.aggregations.top_customers import top_customers
+from src.aggregations.sales_by_status import sales_by_status
+from src.aggregations.sales_by_payment import sales_by_payment
 
-from materialized_views.daily_sales_summary import refresh_daily_sales
-from materialized_views.top_products_summary import refresh_top_products
+from src.materialized_views.daily_sales_summary import refresh_daily_sales
+from src.materialized_views.top_products_summary import refresh_top_products
 
-from jobs.run_job import (
+from src.jobs.run_job import (
     refresh_materialized_views_job,
     daily_report_job
 )
@@ -211,3 +213,6 @@ def main(file_path):
     print("======================")
 
     run_pipeline()
+if __name__ == "__main__":
+    file_path = "data/orders_clean.csv"
+    main(file_path)

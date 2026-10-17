@@ -2,15 +2,16 @@
 
 ## Description
 
-A Big Data ELT pipeline for processing large mixed-quality order datasets using Python, PySpark, and MongoDB.
+A Big Data ELT pipeline for processing large mixed-quality order datasets using Python, PySpark, MongoDB, and FastAPI.
 
 The system supports:
+
 - File routing between Python Batch and PySpark
 - Loading raw data into MongoDB
 - Data quality validation and correction
 - Quarantine of invalid records
 - Metrics generation
-
+- CSV ingestion through REST API
 
 ## Technologies
 
@@ -18,7 +19,8 @@ The system supports:
 - PySpark 4.2.0
 - MongoDB
 - PyMongo
-
+- FastAPI
+- Uvicorn
 
 ## Pipeline Flow
 
@@ -44,21 +46,30 @@ ELT Quality Processing
 
 Validated Data + Quarantine
 
+## File Routing
 
-## Execution Results
+Files are automatically routed according to file size:
 
-Total Records: 1,048,575
+- Small files: Python Batch
+- Large files: PySpark
 
-Validated Records: 985,991
+The current routing threshold is 200 MB.
 
-Quarantine Records: 48,276
+## Latest Execution Results
 
-Inserted Records: 1,034,257
+Total Records: 1,048,581
 
-Updated Records: 14,318
+Valid/Corrected Records: 1,000,299
+
+Corrected Records: 23,398
+
+Quarantine Records: 48,282
+
+Inserted Records: 7,344
+
+Updated Records: 1,041,237
 
 Status: SUCCESS
-
 
 ## MongoDB Collections
 
@@ -66,20 +77,9 @@ Status: SUCCESS
 - orders_validated
 - orders_quarantine
 
+## Installation
 
-## Run Project
+Install the required dependencies:
 
-Install requirements:
-
+```bash
 pip install -r requirements.txt
-
-Run:
-
-python src/main.py
-
-
-## Output
-
-Results are stored in:
-
-reports/results.json

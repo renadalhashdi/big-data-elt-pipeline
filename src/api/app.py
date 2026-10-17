@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append(
+PROJECT_ROOT = os.path.dirname(
     os.path.dirname(
         os.path.dirname(
             os.path.abspath(__file__)
@@ -9,10 +9,13 @@ sys.path.append(
     )
 )
 
-from fastapi import FastAPI
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
-from queries.create_indexes import create_indexes
-from queries.queries import (
+from fastapi import FastAPI, UploadFile, File
+
+from src.queries.create_indexes import create_indexes
+from src.queries.queries import (
     query_1_by_city,
     query_2_by_customer,
     query_3_by_product,
@@ -20,16 +23,16 @@ from queries.queries import (
     query_5_city_and_status
 )
 
-from aggregations.sales_by_city import sales_by_city
-from aggregations.top_products import top_products
-from aggregations.top_customers import top_customers
-from aggregations.sales_by_status import sales_by_status
-from aggregations.sales_by_payment import sales_by_payment
+from src.aggregations.sales_by_city import sales_by_city
+from src.aggregations.top_products import top_products
+from src.aggregations.top_customers import top_customers
+from src.aggregations.sales_by_status import sales_by_status
+from src.aggregations.sales_by_payment import sales_by_payment
 
-from materialized_views.daily_sales_summary import refresh_daily_sales
-from materialized_views.top_products_summary import refresh_top_products
+from src.materialized_views.daily_sales_summary import refresh_daily_sales
+from src.materialized_views.top_products_summary import refresh_top_products
 
-from jobs.run_job import (
+from src.jobs.run_job import (
     refresh_materialized_views_job,
     daily_report_job
 )
@@ -38,20 +41,37 @@ from jobs.run_job import (
 app = FastAPI(
     title="Big Data ELT Pipeline API",
     version="2.0"
-)
+) 
 
 @app.post("/ingest")
-def ingest():
-
+async def ingest(file: UploadFile = File(...)):
     from src.main import main
+    import tempfile
+    import shutil
 
-    file_path = "data/orders_clean.csv"
+    if not file.filename.lower().endswith(".csv"):
+        return {
+            "error": "Only CSV files are allowed"
+        }
 
-    main(file_path)
+    with tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".csv"
+    ) as temp_file:
+        shutil.copyfileobj(file.file, temp_file)
+        temp_path = temp_file.name
 
-    return {
-        "message": "Ingestion completed"
-    }
+    try:
+        main(temp_path)
+
+        return {
+            "message": "Ingestion completed",
+            "filename": file.filename
+        }
+
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
 @app.get("/health")
 def health():
